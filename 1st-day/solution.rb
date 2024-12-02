@@ -10,9 +10,11 @@ class Solution1
 
     first_set = []
     second_set = []
-    first, second = lines.map { |line| line.split(" ").map(&:strip).map(&:to_i) }
-    first_set << first
-    second_set << second
+    lines.each do |line|
+        first, second = line.split(" ").map(&:strip).map(&:to_i)
+        first_set << first
+        second_set << second
+    end
 
     first_set.sort!
     second_set.sort!
@@ -31,9 +33,11 @@ class Solution1
 
     first_set = []
     second_set = []
-    first, second = lines.map { |line| line.split(" ").map(&:strip).map(&:to_i) }
-    first_set << first
-    second_set << second
+    lines.each do |line|
+        first, second = line.split(" ").map(&:strip).map(&:to_i)
+        first_set << first
+        second_set << second
+    end
 
     f = first_set.tally
     s = second_set.tally
