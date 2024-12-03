@@ -1,9 +1,9 @@
 require_relative "../lib/helper"
 
-class Solution1
+class Solution2
   include Helper
 
-  FILE_NAME = "1st-day/input.txt"
+  FILE_NAME = "2nd-day/input.txt"
 
   def solution()
     lines = read_file(FILE_NAME)
@@ -12,8 +12,8 @@ class Solution1
     lines.each do |line|
         row = line.split(" ").map(&:strip).map(&:to_i)
         differences = row.each_cons(2).map { |a,b| b-a }
-        
-        if differences.count { |num| ![-1,-2,-3].include?(num) } == 0 || differences.count { |num| ![1,2,3].include?(num) } == 0
+        sorted = row.sort
+        if (row == sorted || row == sorted.reverse()) && (differences.uniq - [-3,-2,-1, 1,2,3]).empty?
             count += 1
         end
     end
@@ -29,24 +29,24 @@ class Solution1
         row = line.split(" ").map(&:strip).map(&:to_i)
         differences = row.each_cons(2).map { |a,b| b-a }
         
-        # order is right or only first or last element is wrong so we can just skip it
-        if differences.count { |num| ![-1,-2,-3].include?(num) } == 0 || differences.count { |num| ![1,2,3].include?(num) } == 0 ||
-           differences[1..-1].count { |num| ![-1,-2,-3].include?(num) } == 0 || differences[1..-1].count { |num| ![1,2,3].include?(num) } == 0 ||
-           differences[0..-2].count { |num| ![-1,-2,-3].include?(num) } == 0 || differences[0..-2].count { |num| ![1,2,3].include?(num) } == 0
+        if differences.count { |num| ![-1,-2,-3].include?(num) } == 0 || differences.count { |num| ![1,2,3].include?(num) } == 0
             count += 1
-        else
-            next if differences.count { |num| [1,2,3].include?(num) } > 1 && differences.count { |num| ![1,2,3].include?(num) } > 1
-            next if differences.count { |num| [-1,-2,-3].include?(num) } > 1 && differences.count { |num| ![-1,-2,-3].include?(num) } > 1
-            
-            next if differences.all? { |num| num > 0 } || differences.all? { |num| num < 0 }
-            # if all differences are more than 0 then we have at least one gap of 4 or more and deleting it will only widen the gap
-            puts "#{row.join(" ")} = #{differences.join(" ")}"
-            next if differences.count { |num| num > 3 || num < -3 || num == 0 } > 1
-            
-            puts "OK"
-            count += 1
+            next
         end
-            
+
+        i = 0
+        done = false
+        while i < row.size() && !done do
+          shorter_row = row.clone()
+          shorter_row.delete_at(i)
+
+          differences = shorter_row.each_cons(2).map { |a,b| b-a }
+          if differences.count { |num| ![-1,-2,-3].include?(num) } == 0 || differences.count { |num| ![1,2,3].include?(num) } == 0
+            count += 1
+            done = true
+          end
+          i += 1
+        end
     end
 
     count
