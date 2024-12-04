@@ -17,14 +17,20 @@ class Solution4
   end
 
   def solution_part2()
-    map = read_file(FILE_NAME)
-    result = 0
+    count = 0    
+    a_positions.each do |a_position|
+      count += search_cross(a_position)
+    end
 
-    result
+    count
   end
 
   def map
     @map ||= Matrix[*prepare_map]
+  end
+
+  def mirror_map
+    @mirror_map ||= Matrix[*map.row_vectors.reverse.map(&:to_a)]
   end
 
   def x_positions
@@ -36,6 +42,17 @@ class Solution4
     end
 
     @x_positions
+  end
+
+  def a_positions
+    return @a_positions if @a_positions
+    
+    @a_positions = []
+    map.row_vectors.each_with_index do |line, index|
+      @a_positions += line.to_a.each_index.select { |i| line[i] == "A" }.map { |i| [index, i] }
+    end
+
+    @a_positions
   end
 
   def prepare_map
@@ -114,7 +131,40 @@ class Solution4
     count
   end
 
-  def mirror_map
-    @mirror_map ||= Matrix[*map.row_vectors.reverse.map(&:to_a)]
+  def search_cross(a_position)
+    return 0 if a_position[0] < 1 || a_position[1] < 1 || a_position[0] > map.column(0).size - 2 || a_position[1] > map.row(0).size - 2
+
+    left_up = map.row(a_position[0] - 1)[a_position[1] - 1]
+    right_up = map.row(a_position[0] - 1)[a_position[1] + 1]
+    left_down = map.row(a_position[0] + 1)[a_position[1] - 1]
+    right_down = map.row(a_position[0] + 1)[a_position[1] + 1]
+    case [left_up, right_up]
+    when ["M", "M"]
+      if left_down == "S" && right_down == "S"
+        return 1
+      else
+        return 0
+      end
+    when ["M", "S"]
+      if left_down == "M" && right_down == "S"
+        return 1
+      else
+        return 0
+      end
+    when ["S", "M"]
+      if left_down == "S" && right_down == "M"
+        return 1
+      else
+        return 0
+      end
+    when ["S", "S"]
+      if left_down == "M" && right_down == "M"
+        return 1
+      else
+        return 0
+      end
+    else
+      return 0
+    end
   end
 end
