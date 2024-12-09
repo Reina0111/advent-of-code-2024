@@ -6,7 +6,7 @@ end
 
 BENCHMARK_RUNS = 10
 STARTING_TEST = 1
-ENDING_TEST = 8
+ENDING_TEST = 9
 
 def main()
   times = []
@@ -24,7 +24,7 @@ def main()
   if BENCHMARK_RUNS > 0
     puts ""
     puts "Time statistics (average in #{BENCHMARK_RUNS} runs)"
-    for i in (1..24)
+    for i in (STARTING_TEST..ENDING_TEST)
       begin       
         time1 = Benchmark.realtime { (1..BENCHMARK_RUNS).each { |_| Object.const_get("Solution#{i}").new().solution } } / BENCHMARK_RUNS
         time2 = Benchmark.realtime { (1..BENCHMARK_RUNS).each { |_| Object.const_get("Solution#{i}").new().solution_part2 } } / BENCHMARK_RUNS
