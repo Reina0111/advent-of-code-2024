@@ -6,7 +6,7 @@ end
 
 BENCHMARK_RUNS = 10
 STARTING_TEST = 1
-ENDING_TEST = 9
+ENDING_TEST = 10
 
 def main()
   times = []
