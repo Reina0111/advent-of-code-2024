@@ -6,6 +6,7 @@ class Solution11
 
   FILE_NAME = "11th-day/input.txt"
   MAX_STEP = 25
+  MAX_STEP2 = 25
 
   def solution()
     data = read_file(FILE_NAME).first.strip.split(" ").map(&:to_i)
@@ -15,16 +16,47 @@ class Solution11
       make_map(number)
     end
  
-    result = 0
+    result = []
     
     data.each do |number|
-      result += get_length(number)
+      number_result = get_stones(number)
+      result += number_result
+      # puts "length for #{number} -> #{number_result.join(", ")}"
     end
     
-    result
+    # puts result.join(", ")
+
+    result.size
   end
 
   def solution_part2()
+    data = read_file(FILE_NAME).first.strip.split(" ").map(&:to_i)
+    list = data.clone()
+
+    data.each do |number|
+      make_map(number)
+    end
+
+    known_steps.keys.each do |number|
+      make_map_per_5(number)
+    end
+
+    puts known_steps.keys.size
+
+    known_steps.keys.each do |number|
+      make_map_per_25(number)
+    end
+    puts "make_map_per_25 done"
+ 
+    result = []
+    
+    data.each do |number|
+      number_result = get_stones(number, MAX_STEP2 / 25, known_steps_by_25)
+      result += number_result
+      puts "length for #{number} -> #{number_result.size}"
+    end
+
+    result.size
   end
 
   def known_steps
@@ -33,6 +65,18 @@ class Solution11
     @known_steps = {
       0 => [1]
     }
+  end
+
+  def known_steps_by_5
+    return @known_steps_by_5 if @known_steps_by_5
+
+    @known_steps_by_5 = {}
+  end
+
+  def known_steps_by_25
+    return @known_steps_by_25 if @known_steps_by_25
+
+    @known_steps_by_25 = {}
   end
 
   def next_step(current)
@@ -64,16 +108,31 @@ class Solution11
     end
   end
 
-  def get_length(number, distance = MAX_STEP)
+  def make_map_per_5(number)
+    return if known_steps_by_5[number]
+
+    number_result = get_stones(number, 5)
+    known_steps_by_5[number] = number_result
+  end
+
+  def make_map_per_25(number)
+    return if known_steps_by_25[number]
+
+    number_result = get_stones(number, 5, known_steps_by_5)
+    known_steps_by_25[number] = number_result
+  end
+
+  def get_stones(number, distance = MAX_STEP, map = known_steps)
     if distance == 0
-      return 1
+      return [number]
     end
 
-    step = next_step(number)
-    if step.size == 1
-      get_length(step.first, distance - 1)
-    else
-      get_length(step.first, distance - 1) + get_length(step.last, distance - 1)
+    step = map[number]
+    result = []
+    step.each do |num|
+      result += get_stones(num, distance - 1, map)
     end
+
+    result
   end
 end
