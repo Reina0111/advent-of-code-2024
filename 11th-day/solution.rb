@@ -5,18 +5,23 @@ class Solution11
   include Helper
 
   FILE_NAME = "11th-day/input.txt"
-  MAX_STEP = 10
+  MAX_STEP = 25
 
   def solution()
-    @steps_statistics = {}
     data = read_file(FILE_NAME).first.strip.split(" ").map(&:to_i)
     list = data.clone()
 
-    set_statistics((0..9).to_a)
+    data.each do |number|
+      make_map(number)
+    end
+ 
+    result = 0
     
-    puts @steps_statistics
+    data.each do |number|
+      result += get_length(number)
+    end
     
-    # result
+    result
   end
 
   def solution_part2()
@@ -48,34 +53,27 @@ class Solution11
     return [current * 2024]
   end
 
-  def set_statistics(list)
-    current_step = 1
-    while current_step <= MAX_STEP do
-      new_list = []
-      list.each do |element|
-        @steps_statistics[element] ||= {}
-        next if @steps_statistics[element][1]
+  def make_map(number)
+    return if known_steps[number]
 
+    new_numbers = next_step(number)
+    @known_steps[number] = new_numbers
 
-        step = next_step(element)
-        @steps_statistics[element][1] = step
+    new_numbers.each do |new_number|
+      make_map(new_number)
+    end
+  end
 
-        @steps_statistics.each do |key, stats|
-          found_step = stats.values.index { |a| a.include?(element) }
-          if found_step
-            @steps_statistics[key][found_step + 2] ||= []
-            @steps_statistics[key][found_step + 2] += step
-            @steps_statistics[key][found_step + 2].uniq!
-          end
-        end
+  def get_length(number, distance = MAX_STEP)
+    if distance == 0
+      return 1
+    end
 
-        new_list += step
-      end
-
-      list = new_list
-      current_step += 1
+    step = next_step(number)
+    if step.size == 1
+      get_length(step.first, distance - 1)
+    else
+      get_length(step.first, distance - 1) + get_length(step.last, distance - 1)
     end
   end
 end
-
-# 120193 is too low
