@@ -14,7 +14,6 @@ class Solution6
   def solution_part2()
     @data = nil
     @new_obstacles = []
-    @all_visited = {}
     get_loop_distance(true)
 
     # puts @new_obstacles.to_s
@@ -34,7 +33,13 @@ class Solution6
 
     @data = lines.each_with_index.map do |line, index|
       @start = [index, s_index] if (s_index = line.index("^"))
-      line.split("").reject { |e| e == "\n" }.map { |position| [position == "#", position == "^", position == "^" ? [[-1, 0]] : []] }
+      line.split("").reject { |e| e == "\n" }.map do |position|
+        if position == "^"
+          [false, true, [[-1, 0]], { [-1, 0] => true }]
+        else
+          [position == "#", false, [], {}]
+        end
+      end
     end
 
     @data
@@ -72,6 +77,7 @@ class Solution6
         end
         data[current_position[0]][current_position[1]][2] << current_direction
         data[current_position[0]][current_position[1]][2].uniq!
+        data[current_position[0]][current_position[1]][3][current_direction] = true
 
         puts "#{distance}, #{@all_visited.keys.count}"
         # puts "#{data[current_position[0]][current_position[1]][2]} - #{data[current_position[0]][current_position[1]][2].size}" if distance > 38
