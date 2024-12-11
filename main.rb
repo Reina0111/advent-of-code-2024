@@ -4,9 +4,9 @@ Dir.glob("*-day/*.rb").each do |file|
   require_relative file
 end
 
-BENCHMARK_RUNS = 10
-STARTING_TEST = 1
-ENDING_TEST = 10
+BENCHMARK_RUNS = 3
+STARTING_TEST = 0
+ENDING_TEST = 11
 
 def main()
   times = []
