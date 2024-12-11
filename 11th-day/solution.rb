@@ -5,44 +5,18 @@ class Solution11
   include Helper
 
   FILE_NAME = "11th-day/input.txt"
-  MAX_STEP = 2
+  MAX_STEP = 10
 
   def solution()
-    @steps_statistics = {
-      0 => {
-        1 => [1]
-      }
-    }
+    @steps_statistics = {}
     data = read_file(FILE_NAME).first.strip.split(" ").map(&:to_i)
-    puts data.join(", ")
-    result = 0
-    data.each do |elements|
-      elements = [elements]
-      step = 0
-      full_result = []
+    list = data.clone()
 
-      while step < MAX_STEP do
-        puts "pętla #{step}, dla [#{elements.join(", ")}]"
-        res1 = []
-        elements.flatten.each do |el|
-          res = next_step(el)
-          # puts "[#{res.join(", ")}]"
-
-          @known_steps[el] = res
-          full_result << res if step == MAX_STEP - 1
-          res1 << res
-          res1.flatten
-        end
-
-        puts "po pętli #{step}, dla [#{elements.join(", ")}]: [#{res1.join(", ")}]"
-        elements = res1
-        step += 1
-      end
-
-      result += full_result.size
-    end
+    set_statistics((0..9).to_a)
     
-    result
+    puts @steps_statistics
+    
+    # result
   end
 
   def solution_part2()
@@ -72,6 +46,35 @@ class Solution11
     end
 
     return [current * 2024]
+  end
+
+  def set_statistics(list)
+    current_step = 1
+    while current_step <= MAX_STEP do
+      new_list = []
+      list.each do |element|
+        @steps_statistics[element] ||= {}
+        next if @steps_statistics[element][1]
+
+
+        step = next_step(element)
+        @steps_statistics[element][1] = step
+
+        @steps_statistics.each do |key, stats|
+          found_step = stats.values.index { |a| a.include?(element) }
+          if found_step
+            @steps_statistics[key][found_step + 2] ||= []
+            @steps_statistics[key][found_step + 2] += step
+            @steps_statistics[key][found_step + 2].uniq!
+          end
+        end
+
+        new_list += step
+      end
+
+      list = new_list
+      current_step += 1
+    end
   end
 end
 
