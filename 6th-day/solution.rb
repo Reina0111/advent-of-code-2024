@@ -14,7 +14,14 @@ class Solution6
   def solution_part2()
     @data = nil
     @new_obstacles = []
+    @all_visited = {}
     get_loop_distance(true)
+
+    data.each do |line|
+      #puts line.to_s
+    end
+    #puts ""
+    #puts @all_visited.to_s
 
     # puts @new_obstacles.to_s
     @new_obstacles.size
@@ -33,13 +40,7 @@ class Solution6
 
     @data = lines.each_with_index.map do |line, index|
       @start = [index, s_index] if (s_index = line.index("^"))
-      line.split("").reject { |e| e == "\n" }.map do |position|
-        if position == "^"
-          [false, true, [[-1, 0]], { [-1, 0] => true }]
-        else
-          [position == "#", false, [], {}]
-        end
-      end
+      line.split("").reject { |e| e == "\n" }.map { |position| [position == "#", position == "^", position == "^" ? [[-1, 0]] : []] }
     end
 
     @data
@@ -77,9 +78,9 @@ class Solution6
         end
         data[current_position[0]][current_position[1]][2] << current_direction
         data[current_position[0]][current_position[1]][2].uniq!
-        data[current_position[0]][current_position[1]][3][current_direction] = true
+        @all_visited[[current_direction, current_position]] = true
 
-        puts "#{distance}, #{@all_visited.keys.count}"
+        # puts "#{distance}, #{@all_visited.keys.count}"
         # puts "#{data[current_position[0]][current_position[1]][2]} - #{data[current_position[0]][current_position[1]][2].size}" if distance > 38
       end
       distance += data[current_position[0]][current_position[1]][1] ? 0 : 1
@@ -119,25 +120,28 @@ class Solution6
 
   def any_position_visited(direction, current_position)
     # puts "checking for [#{current_position}], [#{direction}]"
+    new_position = current_position.clone
     new_direction = direction.clone
     visited = []
 
-    while current_position && !visited.include?([new_direction, current_position]) && !@all_visited[[new_direction, current_position]] &&
-      (!data[current_position[0]][current_position[1]][2].include?(new_direction) || !data[current_position[0]][current_position[1]][1])
-      visited << [new_direction, current_position]
-      new_direction, current_position = correct_move(new_direction, current_position)
-      # puts "#{new_direction}, #{current_position}"
+    while new_position && !visited.include?([new_direction, new_position]) && @all_visited[[new_direction, new_position]] == nil &&
+      (!data[new_position[0]][new_position[1]][2].include?(new_direction) || !data[new_position[0]][new_position[1]][1])
+      visited << [new_direction, new_position]
+      new_direction, new_position = correct_move(new_direction, new_position)
+      # puts "#{new_direction}, #{new_position}"
       # puts "#{visited}"
     end
 
-    if (new_direction == direction && current_position && data[current_position[0]][current_position[1]][2].include?(direction)) ||
-      (new_direction != direction && current_position && data[current_position[0]][current_position[1]][2].include?(new_direction)) ||
-      @all_visited[[new_direction, current_position]]
-       # puts "OK [#{current_position.join(", ")}]"
+    if (new_direction == direction && new_position && data[new_position[0]][new_position[1]][2].include?(direction)) ||
+      (new_direction != direction && new_position && data[new_position[0]][new_position[1]][2].include?(new_direction)) ||
+      @all_visited[[new_direction, new_position]]
+      # puts "[#{new_direction}], [#{new_position}]"
+      # puts @all_visited[[new_direction, new_position]]
+      # puts "OK #{current_position}"
       @all_visited.merge!(visited.map { |visit| [visit, true] }.to_h)
       true
     else
-      # puts "NIE OK [#{current_position&.join(", ")}]"
+      # puts "NIE OK [#{new_position&.join(", ")}]"
       @all_visited.merge!(visited.map { |visit| [visit, false] }.to_h)
       false
     end
