@@ -42,7 +42,7 @@ class Solution11
       known_steps_by_x.keys.each do |number|
         make_map_per_x(number, x)
       end
-      puts "finished map for #{x}"
+      # puts "finished map for #{x}"
     end
     # puts known_steps_by_x
 
@@ -59,7 +59,7 @@ class Solution11
         hash = known_steps_by_x[el][step].map { |k, count| [k, count * value] }.to_h
         new_list = new_list.merge(hash) { |key, old_val, new_val| old_val + new_val }
       end
-      puts "#{MAX_STEP2 - remaining_steps}"
+      # puts "#{MAX_STEP2 - remaining_steps}"
 
       list = new_list
     end
