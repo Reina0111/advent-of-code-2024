@@ -1,5 +1,4 @@
 require_relative "../lib/helper"
-require 'matrix'
 
 class Solution10
   include Helper

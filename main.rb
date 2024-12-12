@@ -4,9 +4,10 @@ Dir.glob("*-day/*.rb").each do |file|
   require_relative file
 end
 
-BENCHMARK_RUNS = 3
-STARTING_TEST = 0
-ENDING_TEST = 11
+BENCHMARK_RUNS = 10
+STARTING_TEST = 1
+ENDING_TEST = 12
+SKIP_TESTS = [11]
 
 def main()
   times = []
@@ -25,6 +26,7 @@ def main()
     puts ""
     puts "Time statistics (average in #{BENCHMARK_RUNS} runs)"
     for i in (STARTING_TEST..ENDING_TEST)
+      next if SKIP_TESTS.include?(i)
       begin       
         time1 = Benchmark.realtime { (1..BENCHMARK_RUNS).each { |_| Object.const_get("Solution#{i}").new().solution } } / BENCHMARK_RUNS
         time2 = Benchmark.realtime { (1..BENCHMARK_RUNS).each { |_| Object.const_get("Solution#{i}").new().solution_part2 } } / BENCHMARK_RUNS
