@@ -12,25 +12,16 @@ class Solution6
   end
 
   def solution_part2()
-    @data = nil
-    @new_obstacles = []
-    @all_visited = {}
-    get_loop_distance(true)
+    data2
 
-    data.each do |line|
-      #puts line.to_s
-    end
-    #puts ""
-    #puts @all_visited.to_s
-
-    # puts @new_obstacles.to_s
-    @new_obstacles.size
+    get_loop_distance(true).compact.uniq.count
   end
 
   # obstacles are marked as true, free spaces as false
   # every field is an array
   # first element says if it's an obstacle or not
   # second if it was already visited
+  # third is an array of directions in which space was crossed
   def data
     return @data if @data
 
@@ -46,6 +37,16 @@ class Solution6
     @data
   end
 
+  def data2
+    return @data2 if @data2
+
+    @data2 = Matrix[*read_file(FILE_NAME).map { |line| line.strip.split("").map { |position| [position == "#", position == "^", position == "^" ? [[-1, 0]] : []] } }]
+
+    @start = @data2.index([false, true, [[-1, 0]]])
+
+    @data2
+  end
+
   def start
     return @start if @start
 
@@ -57,46 +58,35 @@ class Solution6
   def get_loop_distance(check_for_new_obstacles = false)
     current_direction = [-1, 0]
     distance = 1 # starting position
-    current_index = start
+    loops = []
+    current_position = start
 
-    current_direction, current_position = correct_move(current_direction, current_index)
+    loops << check_for_loop(current_position, current_direction) if check_for_new_obstacles
+
+    current_direction, current_position = correct_move(current_direction, current_position)
     
     while (current_position != nil) do
-      if check_for_new_obstacles
-        # this check checks for only nearby positions
-        # we have to check if any position in this line was visited with correct direction
-        #puts "any_position_visited(#{MAP_DIRECTIONS[current_direction]}, #{current_position})"
-        next_dir, next_pos = correct_move(current_direction, current_position)
-        if (any_position_visited(MAP_DIRECTIONS[next_dir], current_position))
-          # puts "still ok"
-          if next_pos != nil
-            @new_obstacles << next_pos
-            @new_obstacles.uniq!
-          end
-        else
+      loops << check_for_loop(current_position, current_direction) if check_for_new_obstacles
 
-        end
-        data[current_position[0]][current_position[1]][2] << current_direction
-        data[current_position[0]][current_position[1]][2].uniq!
-        @all_visited[[current_direction, current_position]] = true
-
-        # puts "#{distance}, #{@all_visited.keys.count}"
-        # puts "#{data[current_position[0]][current_position[1]][2]} - #{data[current_position[0]][current_position[1]][2].size}" if distance > 38
-      end
       distance += data[current_position[0]][current_position[1]][1] ? 0 : 1
       data[current_position[0]][current_position[1]][1] = true
 
       current_direction, current_position = correct_move(current_direction, current_position)
     end
     
-    distance
+    check_for_new_obstacles ? loops : distance
   end
 
+  UP = [-1, 0]
+  RIGHT = [0, 1]
+  DOWN = [1, 0]
+  LEFT = [0, -1]
+
   MAP_DIRECTIONS = {
-    [-1, 0] => [0, 1],
-    [0, 1] => [1, 0],
-    [1, 0] => [0, -1],
-    [0, -1] => [-1, 0]
+    [-1, 0] => [0, 1], # UP -> RIGHT
+    [0, 1] => [1, 0], # RIGHT -> DOWN
+    [1, 0] => [0, -1], # DOWN -> LEFT
+    [0, -1] => [-1, 0] # LEFT -> UP
   }
 
   # moves 1 field
@@ -146,6 +136,78 @@ class Solution6
       false
     end
   end
+
+  # point - current point
+  # direction - original direction we would go from the point
+  def check_for_loop(point, direction)
+    # puts "check for loop start #{[point, direction]}"
+    x, y = [0, 0]
+    loop do 
+      x, y = [point, direction].transpose.map(&:sum)
+      # puts "[#{x}, #{y}]"
+      direction = MAP_DIRECTIONS[direction]
+      break if @data2[x, y] == nil ||@data2[x, y][0] != true
+    end
+
+    return nil if @data2[x, y] == nil
+    # puts @data2[x, y].to_s
+    # puts "[#{x}, #{y}]"
+    @data2[x, y][0] = true
+    visited_points = []
+
+    # puts [point, direction].to_s
+    while point != nil && !visited_points.include?([point, direction])
+      visited_points << [point, direction]
+      direction, point = correct_move_long(direction, point)
+      # puts visited_points.size.to_s
+    end
+
+    # puts visited_points.to_s
+
+    @data2[x, y][0] = false
+    # puts point.to_s if point
+    # puts "check for loop end #{[point, direction]} -> #{point != nil}"
+    return point ? correct_move(MAP_DIRECTIONS.invert[direction], point)[1] : nil
+  end
+
+  def correct_move_long(direction, index)
+    case direction
+    when UP
+      obstacle_index = @data2.column(index[1]).to_a[0..index[0] - 1].rindex { |obstacle, _, _| obstacle }
+      # puts "obstacle index #{obstacle_index} UP" 
+      if obstacle_index == nil
+        return [direction, nil]
+      else
+        return [MAP_DIRECTIONS[direction], [obstacle_index + 1, index[1]]]
+      end
+    when RIGHT
+      obstacle_index = @data2.row(index[0]).to_a[index[1] + 1..-1].index { |obstacle, _, _| obstacle }
+      # puts "obstacle index #{obstacle_index} RIGHT" 
+      if obstacle_index == nil
+        return [direction, nil]
+      else
+        return [MAP_DIRECTIONS[direction], [index[0], index[1] + obstacle_index]]
+      end
+    when DOWN
+      obstacle_index = @data2.column(index[1]).to_a[index[0] + 1..-1].index { |obstacle, _, _| obstacle }
+      # puts "obstacle index #{obstacle_index} DOWN" 
+      if obstacle_index == nil
+        return [direction, nil]
+      else
+        return [MAP_DIRECTIONS[direction], [index[0] + obstacle_index, index[1]]]
+      end
+    when LEFT
+      obstacle_index = @data2.row(index[0]).to_a[0..index[1] - 1].rindex { |obstacle, _, _| obstacle }
+      # puts "obstacle index #{obstacle_index} LEFT" 
+      if obstacle_index == nil
+        return [direction, nil]
+      else
+        return [MAP_DIRECTIONS[direction], [index[0], obstacle_index + 1]]
+      end
+    end
+  end
 end
 
 # 1413 too low
+# 1455 wrong
+# 1618 wrong
