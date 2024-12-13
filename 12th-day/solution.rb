@@ -5,9 +5,6 @@ class Solution12
   include Helper
 
   FILE_NAME = "12th-day/input.txt"
-  MAX_STEP = 25
-  MAX_STEP2 = 75
-  KEYS = [1, 2, 4, 8, 16, 32, 64]
 
   def solution()
     prepare_data()
