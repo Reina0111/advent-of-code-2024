@@ -142,14 +142,16 @@ class Solution6
   def check_for_loop(point, direction)
     # puts "check for loop start #{[point, direction]}"
     x, y = [0, 0]
-    loop do 
+    loop do
       x, y = [point, direction].transpose.map(&:sum)
       # puts "[#{x}, #{y}]"
       direction = MAP_DIRECTIONS[direction]
-      break if @data2[x, y] == nil ||@data2[x, y][0] != true
+      break if x < 0 || y < 0 || @data2[x, y] == nil || @data2[x, y][0] != true
     end
 
-    return nil if @data2[x, y] == nil
+    # puts "kierunek początkowy po postawieniu przeszkody #{direction}"
+
+    return nil if x < 0 || y < 0 || @data2[x, y] == nil
     # puts @data2[x, y].to_s
     # puts "[#{x}, #{y}]"
     @data2[x, y][0] = true
@@ -159,15 +161,23 @@ class Solution6
     while point != nil && !visited_points.include?([point, direction])
       visited_points << [point, direction]
       direction, point = correct_move_long(direction, point)
-      # puts visited_points.size.to_s
+      # puts visited_points.to_s if visited_points.size < 5
+      # puts direction.to_s if visited_points.size < 5
+      # puts point.to_s if visited_points.size < 5
     end
+
+    # puts "UDAŁO SIĘ #{[x, y]}" if point
+    # puts "BUUUU #{[x, y]}" if point == nil
 
     # puts visited_points.to_s
 
     @data2[x, y][0] = false
     # puts point.to_s if point
     # puts "check for loop end #{[point, direction]} -> #{point != nil}"
-    return point ? correct_move(MAP_DIRECTIONS.invert[direction], point)[1] : nil
+    
+    # return point ? correct_move(MAP_DIRECTIONS.invert[direction], point)[1] : nil
+
+    return point ? [x, y] : nil
   end
 
   def correct_move_long(direction, index)
@@ -210,4 +220,5 @@ end
 
 # 1413 too low
 # 1455 wrong
+# 1500 wrong
 # 1618 wrong
