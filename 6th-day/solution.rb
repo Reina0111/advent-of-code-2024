@@ -82,16 +82,11 @@ class Solution6
     check_for_new_obstacles ? loops : distance
   end
 
-  UP = [-1, 0]
-  RIGHT = [0, 1]
-  DOWN = [1, 0]
-  LEFT = [0, -1]
-
   MAP_DIRECTIONS = {
-    [-1, 0] => [0, 1], # UP -> RIGHT
-    [0, 1] => [1, 0], # RIGHT -> DOWN
-    [1, 0] => [0, -1], # DOWN -> LEFT
-    [0, -1] => [-1, 0] # LEFT -> UP
+    UP => RIGHT,
+    RIGHT => DOWN,
+    DOWN => LEFT,
+    LEFT => UP
   }
 
   # moves 1 field
