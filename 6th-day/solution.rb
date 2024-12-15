@@ -12,6 +12,8 @@ class Solution6
   end
 
   def solution_part2()
+    @data = nil
+    data
     data2
 
     get_loop_distance(true).compact.uniq.count
@@ -31,7 +33,7 @@ class Solution6
 
     @data = lines.each_with_index.map do |line, index|
       @start = [index, s_index] if (s_index = line.index("^"))
-      line.split("").reject { |e| e == "\n" }.map { |position| [position == "#", position == "^", position == "^" ? [[-1, 0]] : []] }
+      line.split("").reject { |e| e == "\n" }.map { |position| [position == "#", false, position == "^" ? [[-1, 0]] : []] }
     end
 
     @data
@@ -63,11 +65,14 @@ class Solution6
 
     loops << check_for_loop(current_position, current_direction) if check_for_new_obstacles
 
+    data[current_position[0]][current_position[1]][1] = true
+
     current_direction, current_position = correct_move(current_direction, current_position)
     
     while (current_position != nil) do
       loops << check_for_loop(current_position, current_direction) if check_for_new_obstacles
 
+      # puts current_position.to_s
       distance += data[current_position[0]][current_position[1]][1] ? 0 : 1
       data[current_position[0]][current_position[1]][1] = true
 
@@ -149,9 +154,7 @@ class Solution6
       break if x < 0 || y < 0 || @data2[x, y] == nil || @data2[x, y][0] != true
     end
 
-    # puts "kierunek początkowy po postawieniu przeszkody #{direction}"
-
-    return nil if x < 0 || y < 0 || @data2[x, y] == nil
+    return nil if x < 0 || y < 0 || @data2[x, y] == nil || data[x][y][1]
     # puts @data2[x, y].to_s
     # puts "[#{x}, #{y}]"
     @data2[x, y][0] = true
