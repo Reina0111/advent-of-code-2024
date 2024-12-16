@@ -12,4 +12,13 @@ module Helper
 
     lines
   end
+
+  def pretty_print_matrix(matrix)
+    array = matrix.to_a
+    column_width = array.flatten.map { |elem| elem.to_s.length }.max
+    array.each do |row|
+      puts row.map { |elem| elem.to_s.rjust(column_width) }.join
+    end
+    puts ""
+  end
 end
