@@ -16,19 +16,19 @@ class Solution15
   end
 
   def solution_part2()
-    @data = nil
-    @data2 = data
+    # @data = nil
+    # @data2 = data
 
     data2[:directions].each_with_index do |direction, index|
       # puts direction.to_s
-      if true
-        puts "#{index}, #{direction}"
-        pretty_print_matrix(data2[:map])
-      end
+      # if index % 500 == 0
+      #   puts "#{index}, #{direction}"
+      #   pretty_print_matrix(data2[:map])
+      # end
       move_robot2(direction)
     end
 
-    pretty_print_matrix(data2[:map])
+    # pretty_print_matrix(data2[:map])
     get_coordinates(data2[:map], "[")
   end
 
@@ -56,7 +56,7 @@ class Solution15
       elsif line.strip == ""
         read_directions = true
       else
-        puts line
+        # puts line
         map << line.strip.split("")
       end
     end
@@ -228,7 +228,7 @@ class Solution15
     # puts "direction: #{direction}, what to move #{what_to_move}"
     return if what_to_move == [nil]
 
-    puts what_to_move.to_s
+    # puts what_to_move.to_s
     what_to_move.each do |axis, section|
     # puts "axis #{axis}, section: #{section}"
       case direction
@@ -259,6 +259,7 @@ class Solution15
   end
 
   def moving_index2(direction, robot_index, skip_indexes = [])
+    # puts "get result for #{robot_index} and #{direction}"
     case direction
     when UP
       map = @data2[:map].column(robot_index[1]).to_a[0..robot_index[0] - 1]
@@ -280,10 +281,12 @@ class Solution15
           else
             result += moving_index2(direction, [index, robot_index[1] - 1])
           end
+          return [nil] if result.select { |res| res == nil }.count > 0
         end
         if result.select { |res| res == nil }.count > 0
           return [nil]
         else
+          # puts "finish result for #{robot_index} and #{direction}"
           return combine_ranges(result)
         end
       end
@@ -297,31 +300,34 @@ class Solution15
       end
     when DOWN
       map = @data2[:map].column(robot_index[1]).to_a[robot_index[0] + 1..-1]
-      puts "#{robot_index} -> #{map.to_s}"
+      # puts "#{robot_index} -> #{map.to_s}"
       obstacle_index = map.index { |place| ["#", "."].include?(place) }
       if data2[:map].column(robot_index[1])[robot_index[0] + obstacle_index + 1] == "#"
         # no movement
         return [nil]
       else
-        indexes = find_first_indexes(map).uniq.select { |i| i <= obstacle_index }
-        puts obstacle_index
+        last_index = map.index { |el| ["#", "."].include?(el) }
         result = [[robot_index[1], (robot_index[0]..robot_index[0] + obstacle_index + 1)]]
-        puts indexes.map { |i| [robot_index[0] + i + 1, robot_index[1]] }.to_s
-        indexes.each do |index|
+        (0..last_index - 1).each do |index|
           next if ["#", "."].include?(data2[:map][robot_index[0] + index + 1, robot_index[1]])
           case data2[:map][robot_index[0] + index + 1, robot_index[1]]
           when "["
+            # puts "get right result for #{robot_index} and #{direction} -> #{[robot_index[0] + index + 1, robot_index[1] + 1]}"
             result += moving_index2(direction, [robot_index[0] + index + 1, robot_index[1] + 1])
-            puts "#{robot_index} -> right #{result}"
-          else
+            # puts "#{robot_index} -> right #{result}"
+          when "]"
+            # puts "get left result for #{robot_index} and #{direction} -> #{[robot_index[0] + index + 1, robot_index[1] - 1]}"
             result += moving_index2(direction, [robot_index[0] + index + 1, robot_index[1] - 1])
-            puts "#{robot_index} -> left #{result}"
+            # puts "#{robot_index} -> left #{result}"
           end
+          return [nil] if result.select { |res| res == nil }.count > 0
         end
       # puts result
         if result.select { |res| res == nil }.count > 0
           return [nil]
         else
+          # puts "finish result for #{robot_index} and #{direction}"
+          # puts combine_ranges(result).to_s
           return combine_ranges(result)
         end
       end
@@ -372,5 +378,3 @@ class Solution15
          .map { |group| array.index(group.first) }
   end
 end
-
-# 1555958 too low
