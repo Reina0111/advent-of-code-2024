@@ -21,4 +21,45 @@ module Helper
     end
     puts ""
   end
+
+  # graph is a hash, where key is source, and value is an hash of pairs [destination, cost]
+  # for example { "A" => { "B" => 1, "C" => 2 } }
+  def dijkstra_all_paths(graph, start, skip_paths: false)
+    distances = Hash.new(Float::INFINITY)
+    distances[start] = 0
+    
+    if !skip_paths
+      paths = Hash.new { |hash, key| hash[key] = [] }
+      paths[start] = [[start]]
+    end
+    # Priority queue implemented as a sorted array
+    queue = [[0, start]] # [distance, node]
+    
+    until queue.empty?
+      current_distance, current_node = queue.shift
+      
+      # If the current distance is greater than the recorded shortest distance, skip
+      next if current_distance > distances[current_node]
+      
+      # Explore neighbors
+      graph[current_node].each do |neighbor, weight|
+        distance = current_distance + weight
+        
+        if distance < distances[neighbor]
+          # Found a new shortest distance
+          distances[neighbor] = distance
+          paths[neighbor] = paths[current_node].map { |path| path + [neighbor] } if !skip_paths
+          
+          # Add to queue
+          queue.push([distance, neighbor])
+          queue.sort_by!(&:first) # Maintain priority order
+        elsif distance == distances[neighbor]
+          # Found an alternate shortest path
+          paths[neighbor].concat(paths[current_node].map { |path| path + [neighbor] }) if !skip_paths
+        end
+      end
+    end
+    
+    skip_paths ? { distances: distances } : { distances: distances, paths: paths }
+  end
 end
