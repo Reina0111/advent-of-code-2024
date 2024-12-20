@@ -4,22 +4,22 @@ Dir.glob("*-day/*.rb").each do |file|
   require_relative file
 end
 
-BENCHMARK_RUNS = 0
-STARTING_TEST = 15
-ENDING_TEST = 15
-SKIP_TESTS = [11]
+BENCHMARK_RUNS = 10
+STARTING_TEST = 1
+ENDING_TEST = 19
+SKIP_TESTS = [11, 16, 18, 19]
 
 def main()
   times = []
   for i in (STARTING_TEST..ENDING_TEST)
-    # begin
+    begin
       part = Object.const_get("Solution#{i}").new()
       
       puts "Solution for day #{i} 1st part: #{part.solution}"
       puts "Solution for day #{i} 2nd part: #{part.solution_part2}"
-    # rescue NameError
-    #   puts "Solution for day #{i} is not implemented yet"
-    # end
+    rescue NameError
+      puts "Solution for day #{i} is not implemented yet"
+    end
   end
 
   if BENCHMARK_RUNS > 0
