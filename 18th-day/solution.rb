@@ -1,6 +1,5 @@
 require_relative "../lib/helper"
 require 'matrix'
-require 'dijkstra_fast'
 
 class Solution18
   include Helper
