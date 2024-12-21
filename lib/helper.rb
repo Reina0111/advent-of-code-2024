@@ -24,7 +24,7 @@ module Helper
 
   # graph is a hash, where key is source, and value is an hash of pairs [destination, cost]
   # for example { "A" => { "B" => 1, "C" => 2 } }
-  def dijkstra_all_paths(graph, start, skip_paths: false)
+  def dijkstra_all_paths(graph, start, skip_paths: false, limit: -1)
     distances = Hash.new(Float::INFINITY)
     distances[start] = 0
     
@@ -39,9 +39,10 @@ module Helper
       current_distance, current_node = queue.shift
       
       # If the current distance is greater than the recorded shortest distance, skip
-      next if current_distance > distances[current_node]
+      next if current_distance > distances[current_node] || (limit >= 0 && current_distance >= limit)
       
       # Explore neighbors
+      next if !graph[current_node]
       graph[current_node].each do |neighbor, weight|
         distance = current_distance + weight
         

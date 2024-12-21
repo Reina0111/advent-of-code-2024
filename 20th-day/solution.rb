@@ -14,7 +14,6 @@ class Solution20
     path = @result[:paths][@end_position][0]
 
     numbered_path = path.each_with_index.map { |position, index| [position, index] }.to_h
-    path_indexes = path.each_with_index.map { |position, index| [index, position] }.to_h
 
     shortcuts = {}
 
@@ -34,18 +33,58 @@ class Solution20
           next if saved < 0
           shortcuts[saved] ||= []
           shortcuts[saved] << index
-          shortcuts[saved].uniq!
         end
       end
     end
 
     # puts shortcuts.map { |k, v| [k, v.count] }.to_s
 
-    shortcuts.select { |k, v| k >= 100 }.values.flatten(1).count
+    shortcuts.select { |k, v| k >= 100 }.values.flatten(1).uniq.count
   end
 
   def solution_part2()
-    0
+    data
+    graph
+    cheat_graph
+    
+    @result = dijkstra_all_paths(@graph, @snake_position)
+    path = @result[:paths][@end_position][0]
+    numbered_path = path.each_with_index.map { |position, index| [position, index] }.to_h
+
+    shortcuts = {}
+    checked_paths = {}
+
+    # puts @cheat_graph.to_s
+
+    path[0..-2].each do |i, j|
+      puts "#{[i, j]} - #{numbered_path[[i, j]]}"
+      possible_cheats = dijkstra_all_paths(@cheat_graph, [[i, j], @data[i, j]], skip_paths: true, limit: 20)
+      # puts "after dijkstra"
+
+      # puts possible_cheats[:distances].to_s
+
+      # # puts [i, j].to_s
+
+      possible_cheats[:distances].select { |k, v| k[1] == "." || k[1] == "E" }.each do |k, distance|
+        saved = numbered_path[k[0]] - numbered_path[[i, j]] - distance
+        next if saved <= 0
+
+        # if saved == 50
+        #   puts "#{saved} for #{[[i, j], k[0]]}: #{numbered_path[k[0]]} - #{numbered_path[[i,j]]} - #{distance}"
+        #   puts possible_cheats[:paths][k][0].to_s
+        # end
+        
+        shortcuts[saved] ||= []
+        shortcuts[saved] << [[i, j], k[0]]
+        shortcuts[saved].uniq!
+      end
+    end
+    
+    # puts checked_paths.to_s
+    # puts shortcuts[76].sort.to_s
+    # puts shortcuts.select { |k, v| k >= 50 }.map { |k, v| [k, v.count]}.sort.to_h.to_s
+
+    shortcuts.select { |k, v| k >= 50 }.values.flatten(1).count
   end
 
   def data
@@ -79,6 +118,37 @@ class Solution20
             if index[0] >= 0 && index[0] <= @max_xy && index[1] >= 0 && index[1] <= @max_xy && @data[index[0], index[1]] != "#"
               @graph[[i, j]][index] = 1
             end
+          end
+        end
+      end
+    end
+  end
+
+  def cheat_graph
+    @cheat_graph = {}
+
+    (0..@data.row_count-1).each do |i|
+      @data.row(i).to_a.each_with_index do |el, j|
+        @cheat_graph[[[i, j], @data[i, j]]] ||= {}
+        # [UP, RIGHT, DOWN, LEFT].each do |direction|
+        #   direction = [direction, [2, 2]].transpose.map { |a| a.reduce(:*) }
+        #   index = [[i, j], direction].transpose.map(&:sum)
+        #   if index[0] >= 0 && index[0] <= @max_xy && index[1] >= 0 && index[1] <= @max_xy
+        #     @cheat_graph[[[i, j], @data[i, j]]][[index, @data[index[0], index[1]]]] = 2
+        #   end
+        # end
+
+        # [[-1,-1], [-1, 1], [1, -1], [1,1]].each do |direction|
+        #   index = [[i, j], direction].transpose.map(&:sum)
+        #   if index[0] >= 0 && index[0] <= @max_xy && index[1] >= 0 && index[1] <= @max_xy
+        #     @cheat_graph[[[i, j], @data[i, j]]][[index, @data[index[0], index[1]]]] = 2
+        #   end
+        # end
+
+        [UP, RIGHT, DOWN, LEFT].each do |direction|
+          index = [[i, j], direction].transpose.map(&:sum)
+          if index[0] >= 0 && index[0] <= @max_xy && index[1] >= 0 && index[1] <= @max_xy
+            @cheat_graph[[[i, j], @data[i, j]]][[index, @data[index[0], index[1]]]] = 1
           end
         end
       end
