@@ -57,7 +57,12 @@ class Solution20
     # puts @cheat_graph.to_s
 
     path[0..-2].each do |i, j|
-      puts "#{[i, j]} - #{numbered_path[[i, j]]}"
+      # previous_step = path[numbered_path[[i, j]] - 1]
+      # next_step = path[numbered_path[[i, j]] + 1]
+      # @cheat_graph[[[i, j], @data[i ,j]]].delete([previous_step, @data[previous_step[0], previous_step[1]]]) if @data[i, j] != "S"
+      # @cheat_graph[[[i, j], @data[i ,j]]].delete([next_step, @data[next_step[0], next_step[1]]])
+
+      # puts "#{[i, j]} - #{numbered_path[[i, j]]}"
       possible_cheats = dijkstra_all_paths(@cheat_graph, [[i, j], @data[i, j]], skip_paths: true, limit: 20)
       # puts "after dijkstra"
 
@@ -76,15 +81,17 @@ class Solution20
         
         shortcuts[saved] ||= []
         shortcuts[saved] << [[i, j], k[0]]
-        shortcuts[saved].uniq!
       end
+
+      # @cheat_graph[[[i, j], @data[i ,j]]][[previous_step, @data[previous_step[0], previous_step[1]]]] = 1 if @data[i, j] != "S"
+      # @cheat_graph[[[i, j], @data[i ,j]]][[next_step, @data[next_step[0], next_step[1]]]] = 1
     end
     
     # puts checked_paths.to_s
     # puts shortcuts[76].sort.to_s
-    # puts shortcuts.select { |k, v| k >= 50 }.map { |k, v| [k, v.count]}.sort.to_h.to_s
+    # puts shortcuts.select { |k, v| k >= 100 }.map { |k, v| [k, v.count]}.sort.to_h.to_s
 
-    shortcuts.select { |k, v| k >= 50 }.values.flatten(1).count
+    shortcuts.select { |k, v| k >= 100 }.values.flatten(1).uniq.count
   end
 
   def data

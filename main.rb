@@ -5,21 +5,21 @@ Dir.glob("*-day/*.rb").each do |file|
 end
 
 BENCHMARK_RUNS = 0
-STARTING_TEST = 20
-ENDING_TEST = 20
-SKIP_TESTS = [11, 16, 18, 19]
+STARTING_TEST = 0
+ENDING_TEST = 22
+SKIP_TESTS = [11, 16, 18, 19, 20, 22]
 
 def main()
   times = []
   for i in (STARTING_TEST..ENDING_TEST)
-    # begin
+    begin
       part = Object.const_get("Solution#{i}").new()
       
       puts "Solution for day #{i} 1st part: #{part.solution}"
       puts "Solution for day #{i} 2nd part: #{part.solution_part2}"
-    # rescue NameError
-    #   puts "Solution for day #{i} is not implemented yet"
-    # end
+    rescue NameError
+      puts "Solution for day #{i} is not implemented yet"
+    end
   end
 
   if BENCHMARK_RUNS > 0
